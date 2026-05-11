@@ -1,19 +1,44 @@
 import 'package:device_preview/device_preview.dart';
-import 'package:expense_tracker/auth/wrapper_screen.dart';
+import 'package:expense_tracker/auth/wrapper.dart';
+import 'package:expense_tracker/provider/auth_provider.dart';
+import 'package:expense_tracker/provider/data_provider.dart';
+import 'package:expense_tracker/provider/profile_provider.dart';
+import 'package:expense_tracker/services/notification_service.dart';
+import 'package:expense_tracker/utils/controller.dart';
+import 'package:expense_tracker/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 
-import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:provider/provider.dart';
 
 
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  await NotificationHelper.initializeNotification();  //Service initialize karo
+  await GetStorage.init();                           // Storage ko Initialize krne k lie
+  await Firebase.initializeApp();                   // Firebase ko Initialize karne k lie
+
+  Get.put(ThemeController());
+
+
+
+
+
   runApp(DevicePreview(
     enabled: !kReleaseMode,
-    builder: (context) => const MyApp(),));
+    builder: (context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => DataProvider()),
+          ChangeNotifierProvider(create: (context) => ProfileImage()),
+          ChangeNotifierProvider(create: (context) => AuthProvider1(context),)
+        ],
+    child: const MyApp(),
+    )));
 }
 
 class MyApp extends StatelessWidget {
@@ -22,33 +47,18 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    final themeController = Get.find<ThemeController>();
+    return Obx(() => GetMaterialApp(
       useInheritedMediaQuery: true,
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
       debugShowCheckedModeBanner: false,
       title: 'Expense Tracker',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6B8DBD),),
-        useMaterial3: true,
-      ),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeController.theme,
       home:  const WrapperScreen(),
-    );
+    ));
   }
 }
 
