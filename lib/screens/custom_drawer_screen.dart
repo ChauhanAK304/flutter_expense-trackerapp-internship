@@ -40,14 +40,14 @@ class _CustomDrawerScreenState extends State<CustomDrawerScreen> {
                 Stack(children: [
                   SizedBox(
                     width: 180,
-                     height: 150,
+                    height: 150,
                     child: Consumer<ProfileImage>(
                       builder: (context, provider, child) {
-                        return provider2.profileImage == null
-                            ? const CircleAvatar(radius: 50, backgroundImage: AssetImage('assets/images/profiler.png'),) // Default icon
-                            : CircleAvatar(
+                        return CircleAvatar(
                           radius: 50,
-                          backgroundImage: FileImage(provider2.profileImage!),
+                          backgroundImage: provider.webImage != null
+                              ? MemoryImage(provider.webImage!)
+                              : const AssetImage('assets/images/profiler.png') as ImageProvider,
                         );
                       },
                     ),

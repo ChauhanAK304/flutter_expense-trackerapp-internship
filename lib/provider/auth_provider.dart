@@ -10,8 +10,10 @@ import '../screens/custom_bottomappbar.dart';
 
 class AuthProvider1 with ChangeNotifier {
 
-  BuildContext context;
-  AuthProvider1(this.context);
+  // BuildContext context;
+  AuthProvider1(
+      // this.context
+      );
 
   bool isLoading = false;
   bool _isPasswordVisible= true;
@@ -24,7 +26,9 @@ class AuthProvider1 with ChangeNotifier {
   final TextEditingController _passwordController = TextEditingController();
    TextEditingController get getPasswordController => _passwordController;
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+      clientId: "809977872811-9p8u74asp1jfnsqotpq6l65ek4gji1k5.apps.googleusercontent.com"
+  );
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
@@ -48,16 +52,22 @@ class AuthProvider1 with ChangeNotifier {
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+      final String? accessToken = googleAuth.accessToken;
+
+      if(idToken == null || accessToken == null){
+        throw 'Google Auth Error : Tokens are null. Check Firebase Console Configuration';
+        
+      }
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: accessToken,
+        idToken: idToken,
+
       );
 
       // Firebase login k liye
-      UserCredential userCredential =
-      await _auth.signInWithCredential(credential);
+      UserCredential userCredential = await _auth.signInWithCredential(credential);
 
       if (userCredential.user != null) {
 

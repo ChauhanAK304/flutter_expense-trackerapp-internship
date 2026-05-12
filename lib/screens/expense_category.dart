@@ -78,9 +78,9 @@ class _CategoryScreenState extends State<ExpenseCategoryScreen> {
   ];
 
   List<Map<String, dynamic>> foundExpense = [];
+
   @override
   void initState() {
-    // TODO: implement initState
     foundExpense = categories;
     super.initState();
   }
@@ -88,107 +88,119 @@ class _CategoryScreenState extends State<ExpenseCategoryScreen> {
   void _runFilter(String enteredKeyword) {
     List<Map<String, dynamic>> results = [];
     if (enteredKeyword.isEmpty) {
-      // Agar search bar khali hai to saari categories dikhane k liye
       results = categories;
     } else {
-      // Case-insensitive search: 'Food' aur 'food' dono match honge
       results = categories
           .where((user) =>
           user["name"].toLowerCase().contains(enteredKeyword.toLowerCase()))
           .toList();
     }
-
-    // UI update karne ke liye setState
     setState(() {
       foundExpense = results;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Category's"),),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-        
-            children: [
-            TextFormField(
+      appBar: AppBar(title: const Text("Category's")),
+      body: Column(
+        children: [
+          // Search Field Section
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextFormField(
               onChanged: (value) => _runFilter(value),
-        
-              validator: (value) {
-                if (value!.isEmpty){return "Enter Valid Category";}
-                else{return null;}
-              },
-
-              style:const TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.black),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
               decoration: InputDecoration(
-                  suffixIcon: const Icon(Icons.search,color: Colors.black,),
+                  suffixIcon: const Icon(Icons.search, color: Colors.black),
                   filled: true,
                   fillColor: Colors.grey.shade400,
-        
-                  enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.black54, width: 3), borderRadius: BorderRadius.circular(15)),
-                  focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.blue, width: 3), borderRadius: BorderRadius.circular(15)),
-        
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.black54, width: 3),
+                      borderRadius: BorderRadius.circular(15)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.blue, width: 3),
+                      borderRadius: BorderRadius.circular(15)),
                   hintText: "Search Category",
                   hintStyle: const TextStyle(fontSize: 20, color: Colors.black54),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)))),
-            const SizedBox(height: 15,),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+            ),
+          ),
 
-              foundExpense.isNotEmpty?
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: foundExpense.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 6,
-                  mainAxisSpacing: 6,
-                ),
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {Navigator.pop(context, foundExpense[index]['name']);},
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
+          const SizedBox(height: 10),
+
+
+          Expanded(
+            child: foundExpense.isNotEmpty
+                ? GridView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              itemCount: foundExpense.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 0.85,
+              ),
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context, foundExpense[index]['name']);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+
+                        Flexible(
+                          flex: 2,
+                          child: Icon(
                             foundExpense[index]['icon'],
-                            size: 40, // Thoda optimize kiya size
+                            size: 45,
                             color: Colors.red,
                           ),
-                          const SizedBox(height: 7),
-                          Text(
-                            foundExpense[index]['name'],
-                            style:  TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.onSecondaryContainer),
-                            textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 5),
+
+                        Flexible(
+                          flex: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Text(
+                              foundExpense[index]['name'],
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                              ),
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ): const Padding(
-                padding: EdgeInsets.only(left: 20,right: 20),
-                child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("No result found please try ",style: TextStyle(fontSize: 20),),
-                    Column(mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("with different search",style: TextStyle(fontSize: 20),),
+                        ),
                       ],
                     ),
-                  ],
-                ),
-              )
-            ],
+                  ),
+                );
+              },
+            )
+                : const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("No result found please try", style: TextStyle(fontSize: 20)),
+                  Text("with different search", style: TextStyle(fontSize: 20)),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

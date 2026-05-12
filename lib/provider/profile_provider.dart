@@ -1,13 +1,14 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data'; // Uint8List ke liye
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart'; // kIsWeb ke liye
 
 class ProfileImage with ChangeNotifier {
-  File? selectedImage;
+  Uint8List? webImage; // Web ke liye bytes use karenge
   String base64Image = "";
   final ImagePicker _picker = ImagePicker();
-  File? get profileImage => selectedImage;
+
   Future<void> chooseImage(String type) async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -16,10 +17,13 @@ class ProfileImage with ChangeNotifier {
       );
 
       if (image != null) {
-        selectedImage = File(image.path);
-        //  Base64 string bade size ki hoti hai,
-        base64Image = base64Encode(selectedImage!.readAsBytesSync());
-        print(profileImage);
+        // Web ke liye bytes read karein
+        Uint8List imageBytes = await image.readAsBytes();
+
+        webImage = imageBytes;
+        base64Image = base64Encode(imageBytes);
+
+        print("Image picked successfully");
         notifyListeners();
       }
     } catch (e) {

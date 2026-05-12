@@ -96,11 +96,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Consumer<ProfileImage>(
                             builder: (context, provider, child) {
-                              return provider2.profileImage == null
-                                  ? const CircleAvatar(radius: 45, backgroundImage: AssetImage('assets/images/profiler.png',)) // Default icon
-                                  : CircleAvatar(
+                              return CircleAvatar(
                                 radius: 40,
-                                backgroundImage: FileImage(provider2.profileImage!), // Selected Image
+                                backgroundImage: provider.webImage != null
+                                    ? MemoryImage(provider.webImage!)
+                                    : const AssetImage('assets/images/profiler.png') as ImageProvider,
                               );
                             },
                           ),
